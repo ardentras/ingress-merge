@@ -410,7 +410,7 @@ func (c *Controller) Process(ctx context.Context) {
 					continue
 				}
 				mergedIngres = ret
-				glog.Infof("Updated merged ingress [%s/%s]", mergedIngres.Namespace, mergedIngres.Name)
+				glog.V(2).Infof("Updated merged ingress [%s/%s]", mergedIngres.Namespace, mergedIngres.Name)
 			} else {
 				mergedIngres = existingMergedIngress
 			}
