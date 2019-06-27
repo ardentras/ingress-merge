@@ -28,6 +28,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - --logtostderr
+            - -v 1
             - --ingress-class={{ .Values.ingressClass }}
             {{- if .Values.configMapSelector }}
             - --configmap-selector={{ .Values.configMapSelector }}{{ end }}
