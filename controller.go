@@ -182,21 +182,21 @@ func (c *Controller) isIgnored(obj interface{}) bool {
 
 func (c *Controller) OnAdd(obj interface{}) {
 	if !c.isIgnored(obj) {
-		glog.Infof("Watched resource added")
+		glog.V(2).Infof("Watched resource added")
 		c.wakeUp()
 	}
 }
 
 func (c *Controller) OnUpdate(oldObj, newObj interface{}) {
 	if !c.isIgnored(oldObj) || !c.isIgnored(newObj) {
-		glog.Infof("Watched resource updated")
+		glog.V(2).Infof("Watched resource updated")
 		c.wakeUp()
 	}
 }
 
 func (c *Controller) OnDelete(obj interface{}) {
 	if !c.isIgnored(obj) {
-		glog.Infof("Watched resource deleted")
+		glog.V(2).Infof("Watched resource deleted")
 		c.wakeUp()
 	}
 }
@@ -208,7 +208,7 @@ func (c *Controller) wakeUp() {
 }
 
 func (c *Controller) Process(ctx context.Context) {
-	glog.Infof("Processing ingress resources")
+	glog.V(2).Infof("Processing ingress resources")
 
 	var (
 		mergeMap = make(map[*v1.ConfigMap][]*extensionsV1beta1.Ingress)
@@ -270,7 +270,7 @@ func (c *Controller) Process(ctx context.Context) {
 		mergeMap[configMap] = append(mergeMap[configMap], ingress)
 	}
 
-	glog.Infof("Collected %d ingresses to be merged", len(mergeMap))
+	glog.V(2).Infof("Collected %d ingresses to be merged", len(mergeMap))
 
 	changed := false
 
@@ -470,7 +470,7 @@ func (c *Controller) Process(ctx context.Context) {
 	}
 
 	if !changed {
-		glog.Infof("Nothing changed")
+		glog.V(2).Infof("Nothing changed")
 	}
 }
 
