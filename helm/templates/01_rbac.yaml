@@ -19,6 +19,16 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 rules:
+{{- if .Values.rbac.podSecurityPolicy }}
+  - apiGroups:
+    - extensions
+    resources:
+    - podsecuritypolicies
+    verbs:
+    - use
+    resourceNames:
+    - {{ include "ingress-merge.fullname" . }}
+{{- end }}
   - apiGroups:
       - ""
     resources:

@@ -18,6 +18,7 @@ ingressWatchIgnore: []
 rbac:
   create: true
   serviceAccountName: default
+  podSecurityPolicy: true
 
 image:
   repository: shaunrasmusen/ingress-merge

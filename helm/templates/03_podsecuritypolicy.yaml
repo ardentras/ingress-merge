@@ -1,0 +1,59 @@
+{{- if .Values.rbac.podSecurityPolicy -}}
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: {{ include "ingress-merge.fullname" . }}
+  labels:
+    app: {{ include "ingress-merge.name" . }}
+    chart: {{ include "ingress-merge.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  # Disallows any privileged pods.
+  privileged: false
+  allowPrivilegeEscalation: false
+  allowedCapabilities: []
+
+  # Full list of volumes can be viewed here: https://v1-9.docs.kubernetes.io/docs/concepts/storage/volumes/#types-of-volumes
+  # Minimum set listed below.
+  volumes:
+  - 'configMap'
+  - 'emptyDir'
+  - 'secret'
+
+  # Allows pods to share parts of the host namespace. More documentation here: https://v1-9.docs.kubernetes.io/docs/concepts/policy/pod-security-policy/#host-namespaces
+  hostPID: false
+  hostIPC: false
+  hostNetwork: false
+
+  # Must be restricted to only the required ports or none (empty list = []).
+  hostPorts: []
+
+  # Only necessary mount paths can be defined here.
+  # 'pathPrefix' must be to the deepest directory for all relevant file mounts.
+  allowedHostPaths:
+  - pathPrefix: '/var/run/secrets/kubernetes.io/' # Mount for service account tokens
+
+  # Allows any definition for SELinux
+  seLinux:
+    rule: 'RunAsAny'
+
+  # All of the following restrict all root permissions for pods.
+  # More details on modifying pod security contexts can be found here: https://v1-9.docs.kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1
+      max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1
+      max: 65535
+
+  # If the filesystem is read-only, set to true
+  readOnlyRootFilesystem: false
+{{- end -}}
