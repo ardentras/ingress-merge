@@ -1,11 +1,11 @@
-apiVersion: v1
+apiVersion: v2
 name: ingress-merge
-appVersion: 0.1-alpha2
-version: 0.1-alpha2
+appVersion: 0.2.0
+version: 1.0.0
 description: Merge Ingress Controller combines multiple ingress resorces into a new one.
 keywords:
 - ingress
-home: https://github.com/jakubkulhan/ingress-merge
+home: https://github.com/ardentras/ingress-merge
 maintainers:
-- name: Jakub Kulhan
-  email: jakub.kulhan@gmail.com
+- name: Shaun Rasmusen
+  email: shaunrasmusen@gmail.com

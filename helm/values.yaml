@@ -1,3 +1,16 @@
+image:
+  repository: shaunrasmusen/ingress-merge
+  tag: latest
+  ## Specify a imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: Always
+
+# Extra arguments to pass to the container
+extraArgs: {}
+# v: 1
+
 # Ingress-class annotation to manage
 ingressClass: merge
 
@@ -15,20 +28,63 @@ configMapWatchIgnore: []
 # List of annotations that will cause an Ingress to be ignored if present
 ingressWatchIgnore: []
 
-rbac:
-  create: true
-  serviceAccountName: default
-  podSecurityPolicy: true
+## Optionally specify an array of imagePullSecrets.
+## Secrets must be manually created in the namespace.
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+##
+imagePullSecrets: []
 
-image:
-  repository: shaunrasmusen/ingress-merge
-  tag: latest
-  pullPolicy: Always
+## Pod priorityClassName
+priorityClassName: ""
 
-resources: {}
+# Pod security context
+podSecurityContext: {}
+  # fsGroup: 2000
 
+# Container security context
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+## Node selectors and tolerations for pod assignment
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+##
 nodeSelector: {}
-
 tolerations: []
 
+## Pod/node affinity/anti-affinity
+##
 affinity: {}
+
+## Additional pod labels and annotations
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podAnnotations: {}
+podLabels: {}
+
+rbac:
+  ## If true, create & use RBAC resources
+  ##
+  create: true
+  ## Ignored if rbac.create is true
+  ##
+  serviceAccountName: default
+  ## If true, will create and l
+  ##
+  podSecurityPolicy: true
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi

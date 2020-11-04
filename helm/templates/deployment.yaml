@@ -7,6 +7,7 @@ metadata:
     chart: {{ include "ingress-merge.chart" . }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   strategy:
