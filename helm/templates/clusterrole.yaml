@@ -1,14 +1,4 @@
 {{ if .Values.rbac.create }}
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: {{ include "ingress-merge.fullname" . }}
-  labels:
-    app: {{ include "ingress-merge.name" . }}
-    chart: {{ include "ingress-merge.chart" . }}
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
----
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
@@ -21,7 +11,7 @@ metadata:
 rules:
 {{- if .Values.rbac.podSecurityPolicy }}
   - apiGroups:
-    - extensions
+    - policy
     resources:
     - podsecuritypolicies
     verbs:
@@ -39,6 +29,7 @@ rules:
       - watch
   - apiGroups:
       - extensions
+      - networking
     resources:
       - ingresses
       - ingresses/status
@@ -50,22 +41,4 @@ rules:
       - update
       - patch
       - delete
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: {{ include "ingress-merge.fullname" . }}
-  labels:
-    app: {{ include "ingress-merge.name" . }}
-    chart: {{ include "ingress-merge.chart" . }}
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: {{ include "ingress-merge.fullname" . }}
-subjects:
-  - kind: ServiceAccount
-    name: {{ include "ingress-merge.fullname" . }}
-    namespace: {{ .Release.Namespace }}
 {{ end }}

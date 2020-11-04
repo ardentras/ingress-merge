@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "ingress-merge.fullname" . }}
@@ -10,28 +10,43 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: Recreate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
   selector:
     matchLabels:
       app: {{ include "ingress-merge.name" . }}
       release: {{ .Release.Name }}
   template:
     metadata:
+      {{- if .Values.podAnnotations }}
+      annotations:
+{{ toYaml .Values.podAnnotations | indent 8 }}
+      {{- end }}
       labels:
         app: {{ include "ingress-merge.name" . }}
         release: {{ .Release.Name }}
+      {{- if .Values.podLabels }}
+{{ toYaml .Values.podLabels | indent 8 }}
+      {{- end }}
     spec:
-      serviceAccountName: {{ if .Values.rbac.create }}{{ include "ingress-merge.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: "{{ .Values.priorityClassName }}"
+      {{- end }}
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
       securityContext:
-        runAsUser: 1001
-        runAsNonRoot: true
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ if .Values.rbac.create }}{{ include "ingress-merge.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - --logtostderr
-            - -v1
             - --ingress-class={{ .Values.ingressClass }}
             {{- if .Values.configMapSelector }}
             - --configmap-selector={{ .Values.configMapSelector }}{{ end }}
@@ -41,6 +56,11 @@ spec:
             - --configmap-watch-ignore={{ . }}{{ end }}
             {{- range .Values.ingressWatchIgnore }}
             - --ingress-watch-ignore={{ . }}{{ end }}
+            {{- range $key, $value := .Values.extraArgs }}
+            - --{{ $key }}={{ $value }}
+            {{- end }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
@@ -55,3 +75,6 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
